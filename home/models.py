@@ -11,8 +11,7 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     def save(self, *args, **kwargs):
-        # Check if the maximum number of instances (2) has been reached
         if Product.objects.count() >= 2:
-            Product.objects.create()  # This will raise an exception if the maximum limit is exceeded
+            Product.objects.create()  
         else:
             super().save(*args, **kwargs)
