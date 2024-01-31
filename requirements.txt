@@ -13,7 +13,7 @@ django-debug-toolbar==4.2.0
 # Deployment
 whitenoise==6.5.0
 gunicorn==21.2.0
-
+bs4
 # DB Layer
 # psycopg2-binary
 # mysqlclient

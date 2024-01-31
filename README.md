@@ -150,3 +150,16 @@ The theme used to style this starter provides the following files:
    |    
    |-- ************************************************************************
 ```
+
+
+### Sending requests
+
+Since the website has a login, you can add a user under `Authentication`, this can be done manually from the application. However, to send request in python,
+you will need two cookies: `csrftoken` and `sessionid`. After loggin with your credentials, you can open the developer console (F12) and copy this two cookies from the 
+Storage tab. A `example_request.py` script is provided, you can retrieve this .
+
+```
+headers = {
+    'Cookie': 'csrftoken=nonj00WFbEN8EFpvvVLeMyWBlRpZM7xJ; sessionid=05lc07de5r8viashy813v6tixw3g57py'
+}
+```
