@@ -7,7 +7,7 @@ base_url = 'http://127.0.0.1:8000/datatb/product/'
 # Define the endpoint URL
 endpoint_url = 'add'
 
-url = base_url + endpoint_url
+
 
 # Generate random values for the input fields
 random_name = ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', k=10))
