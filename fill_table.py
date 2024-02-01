@@ -1,18 +1,19 @@
 import requests
 import random
+import json
 
 # Replace 'http://<Django app URL>' with the base URL of your Django app (e.g., 'http://localhost:8000')
 base_url = 'http://127.0.0.1:8000/datatb/product/'
 
 # Define the endpoint URL
-endpoint_url = 'add'
+endpoint_url = 'add/'
 
 url = base_url + endpoint_url
 
 # Generate random values for the input fields
 random_name = ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', k=10))
 random_info = ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', k=10))
-random_price = random.randint(1, 100)
+random_price = str(random.randint(1, 100))
 
 # Define the form data with random values
 form_data = {
@@ -23,11 +24,12 @@ form_data = {
 
 # Define the headers with cookies
 headers = {
-    'Cookie': 'csrftoken=5vvs6151ScRQGpdMlKAf8FAFERO67MmK; sessionid=c35o5m7xkymbjdtcu9k916f8jfj2f8x7'
+    'Cookie': 'csrftoken=5vvs6151ScRQGpdMlKAf8FAFERO67MmK; sessionid=c35o5m7xkymbjdtcu9k916f8jfj2f8x7', # Optional
 }
 
 try:
-    response = requests.post(url, headers=headers, data=form_data)
+    print(json.dumps(form_data))
+    response = requests.post(url, headers=headers, data=json.dumps(form_data))
 
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
