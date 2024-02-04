@@ -1,6 +1,6 @@
-# Project 2
+# 50.053 Software Testing and Verification 
 
-## Start with `Docker`
+## Fuzzing a Django Web Application.
 
 ## Manual Build
 
@@ -25,7 +25,7 @@ $ pip3 install -r requirements.txt
 
 <br />
 
-> Set Up Database
+> Set Up Database 
 
 ```bash
 $ python manage.py makemigrations
@@ -152,14 +152,48 @@ The theme used to style this starter provides the following files:
 ```
 
 
-### Sending requests
+#### Sending requests
 
-Since the website has a login, you can add a user under `Authentication`, this can be done manually from the application. However, to send request in python,
-you will need two cookies: `csrftoken` and `sessionid`. After loggin with your credentials, you can open the developer console (F12) and copy this two cookies from the 
-Storage tab. A `example_request.py` script is provided, you can retrieve this .
+We provide an example of how you can send a `POST` request to add a new item to the database. In this case located at `datatb/product` with the endpoint url 
+`add/`. It is worthy to note that the cookies are optional to include. In this simple example we create a random `name`, `info` and `price`.
 
 ```
-headers = {
-    'Cookie': 'csrftoken=nonj00WFbEN8EFpvvVLeMyWBlRpZM7xJ; sessionid=05lc07de5r8viashy813v6tixw3g57py'
+import requests
+import random
+import json
+
+base_url = 'http://127.0.0.1:8000/datatb/product/'
+
+endpoint_url = 'add/'
+
+url = base_url + endpoint_url
+
+random_name = ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', k=10))
+random_info = ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', k=10))
+random_price = str(random.randint(1, 100))
+
+form_data = {
+    'name': random_name,
+    'info': random_info,
+    'price': random_price
 }
+
+headers = {
+    'Cookie': 'csrftoken=5vvs6151ScRQGpdMlKAf8FAFERO67MmK; sessionid=c35o5m7xkymbjdtcu9k916f8jfj2f8x7', # Optional
+}
+
+try:
+    print(json.dumps(form_data))
+    response = requests.post(url, headers=headers, data=json.dumps(form_data))
+
+    if response.status_code == 200:
+        print("Request successful!")
+        print("Response:")
+        print(response.text)
+
+    else:
+        print(f"Request failed with status code: {response.status_code}")
+except requests.exceptions.RequestException as e:
+    print("Request failed:", e)
+
 ```
