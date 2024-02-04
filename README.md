@@ -21,8 +21,6 @@ $ source env/bin/activate #optional
 $ pip3 install -r requirements.txt
 ```
 
-At this point, the app runs at `http://127.0.0.1:8000/`. 
-
 <br />
 
 ### 👉 Set Up for `Windows` 
@@ -35,12 +33,12 @@ $ .\env\Scripts\activate
 $ pip3 install -r requirements.txt
 ```
 
+### Start the app 
+```
+$ python manage.py runserver       # start the project
+```
 
 At this point, the app runs at `http://127.0.0.1:8000/`. 
-
-<br />
-
-<br />
 
 ## Codebase Structure
 
