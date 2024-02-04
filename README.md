@@ -4,49 +4,21 @@
 
 ## Manual Build
 
-> Download the code 
-
+> Uncompress the application
+> 
 ```bash
-$ git clone https://github.com/app-generator/django-datta-able.git
-$ cd django-datta-able
+$ tar -xvf DjangoWebApplication.tar.gz
 ```
 
-<br />
 
 ### 👉 Set Up for `Unix`, `MacOS` 
 
 > Install modules via `VENV`  
 
 ```bash
-$ virtualenv env
-$ source env/bin/activate
+$ virtualenv env #optional
+$ source env/bin/activate #optional
 $ pip3 install -r requirements.txt
-```
-
-<br />
-
-> Set Up Database 
-
-```bash
-$ python manage.py makemigrations
-$ python manage.py migrate
-```
-
-<br />
-
-> Generate API
-
-```bash
-$ python manage.py generate-api -f
-```
-
-<br />
-
-> Start the APP
-
-```bash
-$ python manage.py createsuperuser # create the admin
-$ python manage.py runserver       # start the project
 ```
 
 At this point, the app runs at `http://127.0.0.1:8000/`. 
@@ -61,24 +33,6 @@ At this point, the app runs at `http://127.0.0.1:8000/`.
 $ virtualenv env
 $ .\env\Scripts\activate
 $ pip3 install -r requirements.txt
-```
-
-<br />
-
-> Set Up Database
-
-```bash
-$ python manage.py makemigrations
-$ python manage.py migrate
-```
-
-<br />
-
-> Start the APP
-
-```bash
-$ python manage.py createsuperuser # create the admin
-$ python manage.py runserver       # start the project
 ```
 
 
@@ -118,9 +72,6 @@ The project is coded using a simple and intuitive structure presented below:
 
 <br />
 
-## How to Customize 
-
-When a template file is loaded in the controller, `Django` scans all template directories starting from the ones defined by the user, and returns the first match or an error in case the template is not found. 
 The theme used to style this starter provides the following files: 
 
 ```bash
@@ -152,7 +103,7 @@ The theme used to style this starter provides the following files:
 ```
 
 
-#### Sending requests
+### Sending requests
 
 We provide an example of how you can send a `POST` request to add a new item to the database. In this case located at `datatb/product` with the endpoint url 
 `add/`. It is worthy to note that the cookies are optional to include. In this simple example we create a random `name`, `info` and `price`.
