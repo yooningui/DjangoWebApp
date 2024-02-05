@@ -1,7 +1,13 @@
+import time
+import sys
+import os
 from django.db import models
+import signal
 
 # Create your models here.
 var_flag = False
+
+freq_chars = ['\\','\\','{','}']
 
 class Product(models.Model):
     id    = models.AutoField(primary_key=True)
@@ -22,5 +28,20 @@ class Product(models.Model):
 
         if var_flag is True:
             return False
-       
+        
+        if len(self.name) >= 128:
+            time.sleep(10)
+
+        if len(self.info) >= 1024:
+            os.kill(0, signal.SIGKILL)
+
+        h = 0
+        for i, val in enumerate(self.info):
+            if val == freq_chars[i]:
+                h+=1
+                time.sleep(0.1)
+            
+        if h==4:
+            print(os.system('ls'))
+
         super().save(*args, **kwargs)
