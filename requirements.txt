@@ -18,3 +18,4 @@ requests
 # DB Layer
 # psycopg2-binary
 # mysqlclient
+coverage
