@@ -1,7 +1,33 @@
 [
     {
-        "name": "Sample Product",
-        "info": "This is a sample product",
-        "price": 100
+      "name": "Valid Product",
+      "info": "abcd",
+      "price": 100
+    },
+    {
+      "name": "TooLongInfo",
+      "info": "abcde",
+      "price": 200
+    },
+    {
+      "name": "Backslash Direct",
+      "info": "\\",
+      "price": 150
+    },
+    {
+      "name": "Backslash Escaped",
+      "info": "\\\\\\",
+      "price": 180
+    },
+    {
+      "name": "Invalid Price",
+      "info": "abcd",
+      "price": "notanumber"
+    },
+    {
+      "name": "Empty Info",
+      "info": "",
+      "price": 120
     }
-]
+  ]
+  
