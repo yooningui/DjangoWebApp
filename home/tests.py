@@ -26,6 +26,7 @@ cov = coverage.Coverage(source=['home'])
 cov.start()
 
 class FuzzingTestCase(TestCase):
+    @classmethod
     def tearDownClass(cls):
         cov.stop()
         cov.save()
