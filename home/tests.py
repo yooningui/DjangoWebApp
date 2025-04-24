@@ -6,13 +6,15 @@ from time import sleep
 from home.apps import HomeConfig
 import random
 import json
-from django.test import TestCase, Client
+from django.test import TestCase, Client , LiveServerTestCase
 import unicodedata
 import string
 import time
 import copy
 import requests
 import coverage
+import threading
+import matplotlib.pyplot as plt
 
 logging.basicConfig(
     filename='app.log',  # Logs will be written to app.log in the current directory
@@ -46,6 +48,21 @@ class FuzzingTestCase(TestCase):
         self.url = '/datatb/product/add/'
         self.seedQ = self._load_seeds('seed.json')
 
+        self.seedQ.extend([
+            {
+                "seed": {"name": "((a+)+)+", "info": "((a+)+)+", "price": "0"},
+                "s": 0,
+                "f": 1,
+                "alpha": 1,
+            },
+            {
+                "seed": {"name": "OOM Test", "info": "A" * 10_000_000, "price": "100"},
+                "s": 0,
+                "f": 1,
+                "alpha": 1,
+            },
+        ])
+
     def _load_seeds(self, path):
         try:
             raw = json.load(open(path))
@@ -58,34 +75,53 @@ class FuzzingTestCase(TestCase):
         ]
 
     def test_fuzz_requests(self):
+        start_time = time.time()
+        cumulative_interesting = 0
+
+        # lists to store (elapsed_time, cumulative_interesting)
+        times = []
+        counts = []
+
         timeout = 300
-        end = time.time() + timeout
+        end = start_time + timeout
 
         while time.time() < end:
-            seed = self.choose_next()
+            seed   = self.choose_next()
             energy = self.assign_energy(seed)
 
             for _ in range(energy):
-                payload = self._prepare_payload(seed["seed"])
+                payload    = self._prepare_payload(seed["seed"])
                 seed["f"] += 1
 
-                # perform in-process POST
-                resp = self.client.post(self.url,
-                                        json.dumps(payload),
-                                        content_type="application/json")
+                resp = self.client.post(
+                    self.url,
+                    json.dumps(payload),
+                    content_type="application/json"
+                )
 
-                # crash tracking
-                if resp.status_code != 200:
-                    logger.error("Bug revealed!")
-                    logger.error("Request failed: Status code %s", resp.status_code)
-                    logger.error("Seed: %s", seed)
+                if self.reveals_bugs(seed, resp):
                     self._save_crash(payload, resp.status_code, resp.content)
 
-                # coverage feedback
                 if self._is_interesting():
-                    logger.info("Is interesting: %s", payload)
+                    cumulative_interesting += 1
                     self._queue_new_seed(payload)
 
+                    # record timestamp and count
+                    elapsed = time.time() - start_time
+                    times.append(elapsed)
+                    counts.append(cumulative_interesting)
+
+        # — after fuzzing, plot —
+        plt.figure()
+        plt.plot(times, counts, marker="o", linestyle="-")
+        plt.xlabel("Elapsed Time (seconds)")
+        plt.ylabel("Cumulative Interesting Inputs")
+        plt.title("Fuzzer: Interesting Discoveries Over Time")
+        plt.tight_layout()
+        plt.savefig("interesting_over_time.png")
+
+
+        
     def mutate_input(self,input_data):
         mutations = (
             "bitflip", "byteflip", "arith inc/dec", "interesting values",
@@ -189,23 +225,26 @@ class FuzzingTestCase(TestCase):
         e = (seed["alpha"] * (2 ** seed["s"])) / seed["f"]
         return max(1, min(MAX, int(e)))
     
-    # def reveals_bugs(self, seed, output):
-    #     if output.status_code == 200:
-    #         return False
-    #     else:
-            # logger.error("Bug revealed!")
-            # logger.error("Request failed: Status code %s", output.status_code)
-            # logger.error("Seed: %s", seed)
-            # return True
+    def reveals_bugs(self, seed, output):
+        if output.status_code == 200:
+            return False
+        else:
+            logger.error("Bug revealed!")
+            logger.error("Request failed: Status code %s", output.status_code)
+            logger.error("Seed: %s", seed)
+            return True
 
     def _is_interesting(self):
         data = cov.get_data()
+        
         current = {
             (fn, ln)
             for fn in data.measured_files()
             for ln in (data.lines(fn) or [])
         }
+        print(f"[coverage] total covered lines this snapshot: {len(current)}")
         new = current - self._covered
+        print(f"[coverage] new lines this iteration: {len(new)}")
         if new:
             self._covered |= new
             return True
@@ -231,3 +270,21 @@ class FuzzingTestCase(TestCase):
         mutated = self.mutate_input(base)
         # only keep valid keys
         return {k: mutated[k] for k in ("name", "info", "price") if k in mutated}
+    
+class RaceTest(LiveServerTestCase):
+    # disable the transaction wrapper so each request really commits
+    serialized_rollback = True  
+
+    def test_race_condition(self):
+        url = self.live_server_url + '/datatb/product/add/'
+
+        def send(i):
+            body = {"name": f"race number {i}", "info": "race", "price": "10"}
+            try:
+                r = requests.post(url, json=body, timeout=5)
+                logger.info("Race condition request %s response: %s", i, r.text)
+            except requests.exceptions.RequestException as e:
+                logger.error("Race condition request %s failed: %s", i, e)
+        threads = [threading.Thread(target=send, args=(i,)) for i in range(20)]
+        for t in threads: t.start()
+        for t in threads: t.join()
